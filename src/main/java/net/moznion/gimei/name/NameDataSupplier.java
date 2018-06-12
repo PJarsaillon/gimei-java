@@ -1,5 +1,13 @@
 package net.moznion.gimei.name;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import lombok.Data;
+import lombok.Getter;
+import net.moznion.gimei.NameUnit;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,26 +17,21 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-
-import net.moznion.gimei.NameUnit;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-
-import lombok.Data;
-import lombok.Getter;
 
 class NameDataSupplier {
 	private static final NameData NAME_DATA;
 
 	static {
 		try (InputStream in = NameDataSupplier.class.getResourceAsStream("/names.yml")) {
+			StringBuilder nameSourceBuilder = new StringBuilder();
 			String nameSource;
 			try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
-				nameSource = reader.lines().collect(Collectors.joining("\n"));
+                String line;
+                while ((line = reader.readLine()) != null)
+                {
+                    nameSourceBuilder.append(line).append("\n");
+                }
+				nameSource = nameSourceBuilder.toString();
 			}
 			ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 			NAME_DATA = mapper.readValue(nameSource, NameData.class);

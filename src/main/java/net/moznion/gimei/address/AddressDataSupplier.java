@@ -1,5 +1,12 @@
 package net.moznion.gimei.address;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import lombok.Data;
+import net.moznion.gimei.NameUnit;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,25 +15,21 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-
-import net.moznion.gimei.NameUnit;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-
-import lombok.Data;
 
 class AddressDataSupplier {
 	public static final AddressData ADDRESS_DATA;
 
 	static {
 		try (InputStream in = AddressDataSupplier.class.getResourceAsStream("/addresses.yml")) {
+			StringBuilder addressSourceBuilder = new StringBuilder();
 			String addressDataSource;
 			try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
-				addressDataSource = reader.lines().collect(Collectors.joining("\n"));
+				String line;
+				while ((line = reader.readLine()) != null)
+				{
+					addressSourceBuilder.append(line).append("\n");
+				}
+				addressDataSource = addressSourceBuilder.toString();
 			}
 			ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 			ADDRESS_DATA = mapper.readValue(addressDataSource, AddressData.class);
